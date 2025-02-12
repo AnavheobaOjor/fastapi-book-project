@@ -13,11 +13,17 @@
    RUN pip install --upgrade pip
    RUN pip install -r requirements.txt
 
+   # Install Nginx
+   RUN apt-get update && apt-get install -y nginx
+
    # Copy project files
    COPY . .
 
-   # Expose port
-   EXPOSE 8000
+   # Copy Nginx configuration file
+   COPY nginx.conf /etc/nginx/nginx.conf
 
-   # Start the application using Uvicorn
-   CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+   # Expose ports
+   EXPOSE 80 8000
+
+   # Start Nginx and the FastAPI application
+   CMD service nginx start && uvicorn main:app --host 0.0.0.0 --port 8000
