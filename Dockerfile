@@ -13,8 +13,8 @@
    RUN pip install --upgrade pip
    RUN pip install -r requirements.txt
 
-   # Install Nginx
-   RUN apt-get update && apt-get install -y nginx
+   # Install Nginx and Supervisor
+   RUN apt-get update && apt-get install -y nginx supervisor
 
    # Copy project files
    COPY . .
@@ -22,8 +22,11 @@
    # Copy Nginx configuration file
    COPY nginx.conf /etc/nginx/nginx.conf
 
+   # Copy Supervisor configuration file
+   COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
    # Expose ports
    EXPOSE 80 8000
 
-   # Start Nginx and the FastAPI application
-   CMD service nginx start && uvicorn main:app --host 0.0.0.0 --port 8000
+   # Start Supervisor
+   CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
