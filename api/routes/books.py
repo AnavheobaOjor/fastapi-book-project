@@ -1,6 +1,6 @@
-from typing import OrderedDict
+from typing import OrderedDict, List, Dict
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, HTTPException
 from fastapi.responses import JSONResponse
 
 from api.db.schemas import Book, Genre, InMemoryDB
@@ -41,35 +41,33 @@ async def create_book(book: Book):
     )
 
 
-@router.get(
-    "/", response_model=OrderedDict[int, Book], status_code=status.HTTP_200_OK
-)
-async def get_books() -> OrderedDict[int, Book]:
-    return db.get_books()
+@router.get("/", status_code=status.HTTP_200_OK)
+async def get_books():
+    books = db.get_books()
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=[book.model_dump() for book in books.values()]
+    )
 
 
-@router.get(
-    "/{book_id}",
-    response_model=Book,
-    status_code=status.HTTP_200_OK,
-    responses={404: {"description": "Book not found"}},
-)
+@router.get("/{book_id}", response_model=Book, status_code=status.HTTP_200_OK)
 async def get_book(book_id: int) -> Book:
     book = db.get_book(book_id)
-    if not book:
+    if book is None:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content={"detail": "Book not found"},
+            content={"detail": f"Book with id {book_id} not found"}
         )
-    return book
+    return JSONResponse(
+        status_code=status.HTTP_200_OK, content=book.model_dump()
+    )
 
 
 @router.put("/{book_id}", response_model=Book, status_code=status.HTTP_200_OK)
 async def update_book(book_id: int, book: Book) -> Book:
-    updated_book = db.update_book(book_id, book)
     return JSONResponse(
         status_code=status.HTTP_200_OK,
-        content=updated_book.model_dump(),
+        content=db.update_book(book_id, book).model_dump(),
     )
 
 
