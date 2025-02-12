@@ -61,7 +61,7 @@ async def get_book(book_id: int) -> Book:
             status_code=status.HTTP_404_NOT_FOUND,
             content={"detail": "Book not found"},
         )
-    return book.model_dump()
+    return book
 
 
 @router.put("/{book_id}", response_model=Book, status_code=status.HTTP_200_OK)
