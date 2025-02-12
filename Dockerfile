@@ -4,6 +4,7 @@ FROM python:3.10-slim
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PORT=80
 
 # Set working directory
 WORKDIR /app
@@ -33,8 +34,8 @@ RUN mkdir -p /run/nginx
 RUN chown -R www-data:www-data /app
 RUN chmod -R 755 /app
 
-# Expose ports
-EXPOSE 80 8000
+# Expose port (Render will override this with their PORT)
+EXPOSE ${PORT}
 
 # Start Supervisor
 CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
