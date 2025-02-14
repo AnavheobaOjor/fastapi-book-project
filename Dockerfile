@@ -9,6 +9,12 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     mkdir -p /tmp/nginx
 
+# Add configuration to preserve headers
+RUN echo 'proxy_set_header Host $host;' >> /etc/nginx/proxy_params && \
+    echo 'proxy_set_header X-Real-IP $remote_addr;' >> /etc/nginx/proxy_params && \
+    echo 'proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' >> /etc/nginx/proxy_params && \
+    echo 'proxy_set_header X-Forwarded-Proto $scheme;' >> /etc/nginx/proxy_params
+
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
